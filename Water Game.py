@@ -5,21 +5,22 @@ import time
 pygame.init()
 
 
-water_image = pygame.image.load("water_image.png")
+water_image = pygame.image.load("images/water_image.png")
 water_rect = water_image.get_rect()
 tile_size = water_rect.width
+screen = pygame.display.set_mode((tile_size*10, tile_size*10))
+screen.fill((0, 0, 255))
 screen_rect = screen.get_rect()
+
 #print(water_rect)
-#screen.blit(water_image, screen_rect.center)
-screen = pygame.display.set_mode((10*tile_size, 10*tile_size))
-screen.fill((0, 0, 0))
+r = screen_rect.width // water_rect.width
+c = screen_rect.height // water_rect.height
 
-rows = screen_rect,height/tile_size
-cols = screen_rect.width/tile_size
+#tile the entire screen with water
+for x in range(r):
+   for y in range(c):
+       screen.blit(water_image, (x*water_rect.height, y*water_rect.width))
 
-for x in range(int(rows)):
-    for y in range(int(cols)):
-        screen.blit(water_image, (x*water_rect.height, y*water_rect.width))
 
 while True:
     #print("----------check for new events____________")
@@ -37,5 +38,5 @@ while True:
                 screen.fill((0, 255, 0))
             elif event.key == pygame.K_b:
                 screen.fill((0, 0, 255))
-pygame.display.flip()
-time.sleep()
+    pygame.display.flip()
+    time.sleep(1)
