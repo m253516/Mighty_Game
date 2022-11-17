@@ -1,56 +1,71 @@
 import pygame
 import sys
-import time
 from ship import Ship
 from island import Island
 
 pygame.init()
 
+clock = pygame.time.Clock()
 
-water_image = pygame.image.load("images/water_image.png")
+water_image = pygame.image.load('images/water_image.png')
 water_rect = water_image.get_rect()
 tile_size = water_rect.width
-screen = pygame.display.set_mode((tile_size*10, tile_size*10))
+screen = pygame.display.set_mode((10*tile_size, 10*tile_size))
+pygame.display.set_caption("This is my really cool game")
 screen.fill((0, 0, 0))
+
+#load my island images
+island = Island()
+#island.move((320, 320))
+
+#add a ship
+my_ship = Ship() #ship is now an instance (object) of the Ship class
+
+#add a boom sound
+boom = pygame.mixer.Sound('sounds/steve_hurt.mp3')
+
+#get screen rect parameters
 screen_rect = screen.get_rect()
 
-#print(water_rect)
-r = screen_rect.width // water_rect.width
-c = screen_rect.height // water_rect.height
+#get the number  of row and columns to draw by ocean background
 
-#load my Island images
-island = Island()
-island = Island()
-#tile the entire screen with water
-for x in range(r):
-   for y in range(c):
-       screen.blit(water_image, (x*water_rect.height, y*water_rect.width))
+rows = screen_rect.height // tile_size #rounds the result to the nearest whole number
+cols = screen_rect.width // tile_size
+
+coordinate = (0, 0)
+def draw_background():
+    #drawing my ocean on the screen
+    for x in range(rows):
+        for y in range(cols):
+            screen.blit(water_image, (x*water_rect.height, y*water_rect.width))
+
+pygame.mouse.set_visible(False)
 
 
 while True:
-    #print("----------check for new events____________")
     recent_events = pygame.event.get()
-    #print("----------done checking for events--------")
     for event in recent_events:
+        if event.type == pygame.MOUSEMOTION:
+            coordinate = pygame.mouse.get_pos()
         if event.type == pygame.QUIT:
-            #print("HeeHeeHa I will never Quit")
             pygame.quit()
             sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
-                screen.fill((255, 0, 0))
-            elif event.key == pygame.K_g:
-                screen.fill((0, 255, 0))
-            elif event.key == pygame.K_b:
-                screen.fill((0, 0, 255))
+
+    #draw the screen
+    draw_background()
+    island.draw(screen)
+    island.move((320, 320))
+    #update my ship
+    my_ship.move(coordinate)
+
+    #check collisions
+    collision = pygame. sprite.collide_rect(my_ship, island)
+    if collision:
+        print(f"You just ran into the island dummy!  Now your health is {my_ship.health}")
+        pygame.mixer.Sound.play(boom)
+        my_ship.health -= 1
+    ship_rect = my_ship.rect
+    my_ship.draw(screen)
+    screen.blit(my_ship.image, ship_rect)
     pygame.display.flip()
-    time.sleep(1)
-
-#new code to catch up
-
-    # #draw the screen
-    # draw_background()
-    # my_ship.move(coordniate)
-    # #ship_rect.center = coordinate
-    # screen.blit(my_ship.ikmage, ship_rect)
-    # pygame.display.flip()
+    clock.tick(60)
